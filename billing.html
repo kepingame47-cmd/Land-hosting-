@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Host - All-in-One Premium Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f4f6fa; color: #334155; padding-bottom: 30px; overflow-x: hidden; }
+        
+        /* Navbar Modern Light */
+        nav { background: #ffffff; padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: relative; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .menu-toggle { background: transparent; border: none; color: #64748b; font-size: 1.3rem; cursor: pointer; padding: 5px; }
+        .nav-title { font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+        .btn-back { color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-back:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* Sidebar Menu Clean Style */
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #ffffff; border-right: 1px solid #e2e8f0; z-index: 50; padding: 24px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); z-index: 40; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* User Profile Badge */
+        .sidebar-user { background: #f8fafc; padding: 16px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 45px; height: 45px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 2px solid #3b82f6; }
+        .user-info strong { display: block; font-size: 0.95rem; color: #0f172a; word-break: break-all; }
+        .user-info span { font-size: 0.75rem; color: #64748b; display: block; word-break: break-all; }
+        .status-online { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; color: #10b981; font-weight: 600; margin-top: 2px; }
+        .status-online::before { content: ''; width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block; }
+        
+        /* Sidebar Buttons */
+        .sidebar-menu-btn { width: 100%; background: #f1f5f9; color: #334155; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; gap: 8px; transition: 0.2s; text-align: left; }
+        .sidebar-menu-btn:hover { background: #e2e8f0; }
+        .btn-logout { width: 100%; background: #fee2e2; color: #ef4444; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn-logout:hover { background: #fca5a5; }
+
+        /* Container & Grid Layout */
+        .container { width: 100%; max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+        
+        /* Tabs Nav Glass Style */
+        .tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #e2e8f0; padding: 5px; border-radius: 14px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px; text-align: center; border-radius: 10px; color: #64748b; font-size: 0.9rem; cursor: pointer; text-decoration: none; font-weight: 600; border: none; background: transparent; transition: all 0.2s ease; }
+        .tab-btn.active { color: #2563eb; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        /* Billing Card (Premium Blue Gradient) */
+        .billing-card { background: linear-gradient(135deg, #1e40af, #2563eb); padding: 24px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15); position: relative; overflow: hidden; }
+        .billing-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        .billing-card p { font-size: 0.85rem; font-weight: 500; opacity: 0.85; margin-bottom: 4px; color: #eff6ff; }
+        .billing-card h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; color: #ffffff; letter-spacing: -0.5px; }
+        .btn-topup { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.25); padding: 10px 16px; color: white; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; backdrop-filter: blur(4px); transition: 0.2s; }
+        .btn-topup:hover { background: rgba(255, 255, 255, 0.3); }
+        
+        /* Server List Card Modern White */
+        .server-list-card { background: #ffffff; border: 1px solid #e2e8f0; padding: 22px; border-radius: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .server-list-card h3 { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .empty-text { text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 20px 10px; line-height: 1.6; }
+        
+        /* Server Item */
+        .server-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .btn-manage { background: #2563eb; color: white; border: none; padding: 8px 14px; font-size: 0.8rem; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1); }
+        
+        /* Form Inputs */
+        .input-box { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; color: #0f172a; font-size: 0.9rem; margin-top: 6px; margin-bottom: 16px; outline: none; transition: 0.2s; }
+        .input-box:focus { border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .input-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Auth Screen Light Styling */
+        .auth-container { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 28px; margin-top: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
+        .auth-header { text-align: center; margin-bottom: 24px; }
+        .auth-header h2 { font-size: 1.5rem; color: #0f172a; font-weight: 800; margin-bottom: 6px; }
+        .auth-header p { font-size: 0.85rem; color: #64748b; }
+        .btn-auth { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.95rem; margin-top: 8px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        .auth-toggle-text { text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 20px; }
+        .auth-toggle-text span { color: #2563eb; cursor: pointer; font-weight: 700; }
+
+        /* Modals Modern */
+        .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 200; }
+        .modal-body { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+        .topup-btn { padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: 0.2s; }
+        .topup-btn.selected { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+
+        /* Timer & Badge Light Mode */
+        .timer-box { background: #ef4444; color: white; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-block; margin-bottom: 12px; font-family: monospace; }
+        .trx-code { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 12px; font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+        
+        .status-badge { display: block; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; }
+        .status-pending { background: #fef3c7; color: #d97706; border: 1px dashed #f59e0b; }
+        
+        .btn-wa { background: #25d366; color: white; width: 100%; justify-content: center; padding: 12px; margin-top: 8px; font-weight: 700; border-radius: 10px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2); }
+        .btn-wa:disabled { background: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; box-shadow: none; }
+
+        /* Admin/Owner Dashboard Table CSS */
+        .admin-user-table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; }
+        .admin-user-table th { background: #f1f5f9; padding: 10px; font-size: 0.8rem; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .admin-user-table td { padding: 12px 10px; font-size: 0.85rem; border-bottom: 1px solid #e2e8f0; color: #0f172a; }
+        .btn-admin-action { border: none; padding: 5px 8px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-right: 4px; }
+        .btn-ban { background: #fee2e2; color: #ef4444; }
+        .btn-unban { background: #dcfce7; color: #166534; }
+        .btn-del { background: #e2e8f0; color: #475569; }
+
+        /* Screen Full Maintenance / Auto Upgrade */
+        .maintenance-screen { position: fixed; inset: 0; background: #0f172a; color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .maintenance-icon { font-size: 4rem; color: #f59e0b; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* ==================== CONTROL PANEL PANEL CSS ==================== */
+        .status-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .server-title-text { font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+        .server-ip-badge { font-size: 0.8rem; color: #64748b; font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
+        
+        .status-row { display: flex; gap: 10px; margin-bottom: 16px; }
+        .status-box { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; }
+        .status-box span { display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .status-box strong { font-size: 0.95rem; color: #0f172a; }
+        
+        .badge-running { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .badge-offline { background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        
+        .control-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-action { border: none; padding: 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-start { background: #dcfce7; color: #166534; }
+        .btn-restart { background: #eff6ff; color: #1e40af; }
+        .btn-stop { background: #fee2e2; color: #991b1b; }
+        
+        .menu-row { display: flex; background: #e2e8f0; padding: 5px; border-radius: 14px; margin-bottom: 16px; gap: 4px; }
+        .menu-btn { flex: 1; padding: 10px; text-align: center; border-radius: 10px; color: #64748b; font-size: 0.85rem; cursor: pointer; font-weight: 600; border: none; background: transparent; transition: 0.2s; }
+        .menu-btn.active { color: #2563eb; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .panel-card { background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .console-screen { background: #0f172a; color: #38bdf8; padding: 14px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; height: 180px; overflow-y: auto; margin-bottom: 10px; line-height: 1.5; text-align: left; }
+        .console-input-row { display: flex; gap: 6px; }
+        .console-input { flex: 1; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .btn-send-cmd { background: #2563eb; color: white; border: none; padding: 0 14px; border-radius: 8px; cursor: pointer; }
+        
+        .file-list { display: flex; flex-direction: column; gap: 8px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .file-item:hover { background: #f1f5f9; }
+        .file-left { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: #0f172a; }
+        .file-icon-dir { color: #eab308; }
+        .file-icon-file { color: #64748b; }
+        .file-size { font-size: 0.75rem; color: #94a3b8; }
+        .btn-file-action { background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .info-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 0.8rem; }
+        .info-item div { color: #64748b; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; font-size: 0.7rem; }
+        .info-item p { color: #0f172a; font-weight: 700; }
+    </style>
+</head>
+<body x-data="{ 
+    ownerWhatsapp: '6281234567890', 
+    linkQrisOwner: 'https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=PinkHostTopup',
+
+    currentScreen: 'billing_screen',
+
+    // Status Sistem (Dapat diubah oleh admin untuk auto-maintenance upgrade)
+    isMaintenanceMode: localStorage.getItem('web_maintenance') === 'true',
+
+    // Role Akun Sistem
+    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
+    userRole: localStorage.getItem('acc_role') || 'user', // 'user' atau 'admin'
+    authMode: 'register', 
+    sidebarOpen: false,
+    username: localStorage.getItem('acc_username') || '',
+    email: localStorage.getItem('acc_email') || 'client@evovix.net',
+    password: '',
+    tab: 'dashboard', 
+    credits: parseInt(localStorage.getItem('userCredits')) || 0, 
+    hasServer: localStorage.getItem('hasActiveServer') === 'true', 
+    modalTopup: false, 
+    amountToTopup: 25000,
+    showQrCode: false,
+    timerString: '05:00',
+    timerInterval: null,
+    invoiceId: '',
+    namaPengirim: '',
+
+    // Data Database Pengguna Simulasi Lokal (Untuk Fitur Banned & Hapus oleh Admin)
+    usersDatabase: JSON.parse(localStorage.getItem('mock_db_users')) || [
+        { name: 'player_jail', email: 'jail@gmail.com', role: 'user', banned: false },
+        { name: 'penipu_hosting', email: 'scam@gmail.com', role: 'user', banned: true },
+        { name: 'budi_gaming', email: 'budi@gmail.com', role: 'user', banned: false }
+    ],
+
+    // Data Form Pembelian & Versi Minecraft
+    inputNamaServer: '',
+    inputVersiMc: 'Java - 1.21 (Terbaru)',
+    savedNamaServer: localStorage.getItem('serverName') || '',
+    savedVersiMc: localStorage.getItem('serverVersion') || '',
+    savedServerIp: localStorage.getItem('serverIpAddress') || 'land.host.net:19142',
+
+    // State Control Panel Screen
+    serverStatus: 'RUNNING',
+    panelTab: 'console',
+    commandInput: '',
+    consoleLogs: [
+        '[PinkHost] Loading core libraries...',
+        '[PinkHost] Starting container engine daemon...',
+        '[PinkHost] Network bridge successfully configured.'
+    ],
+    files: [
+        { name: 'plugins', isDir: true, size: '-' },
+        { name: 'world', isDir: true, size: '-' },
+        { name: 'server.properties', isDir: false, size: '4.2 KB' },
+        { name: 'spigot.yml', isDir: false, size: '8.1 KB' }
+    ],
+
+    // Fungsi Registrasi & Login Akun Pintar
+    handleRegister() {
+        if(!this.username || !this.email || !this.password) { alert('Harap isi semua kolom!'); return; }
+        
+        // JIKA MENDAFTAR DENGAN USERNAME 'admin', JADIKAN IA OWNER / ADMIN UTAMA
+        let roleDaftar = (this.username.toLowerCase() === 'admin') ? 'admin' : 'user';
+
+        localStorage.setItem('acc_username', this.username);
+        localStorage.setItem('acc_email', this.email);
+        localStorage.setItem('acc_password', this.password);
+        localStorage.setItem('acc_role', roleDaftar);
+        
+        // Simpan ke daftar manifest user database
+        this.usersDatabase.push({ name: this.username, email: this.email, role: roleDaftar, banned: false });
+        localStorage.setItem('mock_db_users', JSON.stringify(this.usersDatabase));
+
+        alert('Registrasi Berhasil sebagai ' + roleDaftar.toUpperCase() + '! Silakan login.');
+        this.authMode = 'login';
+        this.password = '';
+    },
+    handleLogin() {
+        let storedUser = localStorage.getItem('acc_username');
+        let storedEmail = localStorage.getItem('acc_email');
+        let storedPass = localStorage.getItem('acc_password');
+        let storedRole = localStorage.getItem('acc_role') || 'user';
+
+        if((this.email === storedUser || this.email === storedEmail) && this.password === storedPass) {
+            
+            // CEK APAKAH USER INI SEDANG DIBANNED
+            let dataUserDiDb = this.usersDatabase.find(u => u.name === storedUser);
+            if(dataUserDiDb && dataUserDiDb.banned && storedRole !== 'admin') {
+                alert('AKUN ANDA TELAH DIBANNED PERMANEN OLEH OWNER KARENA TINDAKAN JAIL / PENIPUAN!');
+                return;
+            }
+
+            this.isLoggedIn = true;
+            this.username = storedUser;
+            this.userRole = storedRole;
+            localStorage.setItem('isLoggedIn', 'true');
+        } else { alert('Data login salah!'); }
+    },
+    handleLogout() {
+        this.isLoggedIn = false;
+        this.sidebarOpen = false;
+        localStorage.setItem('isLoggedIn', 'false');
+    },
+
+    // FITUR OWNER / ADMIN CONTROL UTAMA
+    toggleBanUser(index) {
+        this.usersDatabase[index].banned = !this.usersDatabase[index].banned;
+        localStorage.setItem('mock_db_users', JSON.stringify(this.usersDatabase));
+        alert('Status Ban ' + this.usersDatabase[index].name + ' berhasil diubah.');
+    },
+    hapusUserPermanen(index) {
+        if(confirm('Hapus akun ' + this.usersDatabase[index].name + ' dari server secara permanen?')) {
+            this.usersDatabase.splice(index, 1);
+            localStorage.setItem('mock_db_users', JSON.stringify(this.usersDatabase));
+        }
+    },
+    toggleMaintenanceMode() {
+        this.isMaintenanceMode = !this.isMaintenanceMode;
+        localStorage.setItem('web_maintenance', this.isMaintenanceMode ? 'true' : 'false');
+        alert(this.isMaintenanceMode ? 'Web dimatikan! Mode upgrade/maintenance aktif.' : 'Web kembali online!');
+    },
+
+    // Sistem Isi Saldo QRIS
+    bukaModalTopup() {
+        this.modalTopup = true;
+        this.showQrCode = false;
+        this.namaPengirim = '';
+        clearInterval(this.timerInterval);
+    },
+    tampilkanQRIS() {
+        this.showQrCode = true;
+        this.invoiceId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+        let waktuSisa = 300;
+        clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            let m = Math.floor(waktuSisa / 60);
+            let s = waktuSisa % 60;
+            this.timerString = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+            if (waktuSisa <= 0) { this.tutupModal(); alert('Expired!'); }
+            waktuSisa--;
+        }, 1000);
+    },
+    kirimBuktiWhatsApp() {
+        if(!this.namaPengirim.trim()) return;
+        let pesan = `Halo Owner Pink Host, saya ingin konfirmasi Top Up.\n\n• ID Invoice: ${this.invoiceId}\n• Akun Client: ${this.username}\n• Nominal: Rp ${this.amountToTopup.toLocaleString('id-ID')}\n• Pengirim: ${this.namaPengirim}`;
+        window.open(`https://api.whatsapp.com/send?phone=${this.ownerWhatsapp}&text=${encodeURIComponent(pesan)}`, '_blank');
+        this.credits += this.amountToTopup;
+        localStorage.setItem('userCredits', this.credits);
+        this.modalTopup = false;
+    },
+    tutupModal() { clearInterval(this.timerInterval); this.modalTopup = false; },
+
+    // Proses Transaksi & Pembuatan Port Unik
+    beliServer() {
+        if(!this.inputNamaServer.trim()) { alert('Isi Nama Server dahulu!'); return; }
+        if(this.credits >= 25000) { 
+            this.credits -= 25000; 
+            localStorage.setItem('userCredits', this.credits);
+            
+            let portAcak = Math.floor(10000 + Math.random() * 15000);
+            this.savedServerIp = 'land.host.net:' + portAcak;
+
+            this.savedNamaServer = this.inputNamaServer;
+            this.savedVersiMc = this.inputVersiMc;
+            this.hasServer = true; 
+            
+            localStorage.setItem('hasActiveServer', 'true');
+            localStorage.setItem('serverName', this.savedNamaServer);
+            localStorage.setItem('serverVersion', this.savedVersiMc);
+            localStorage.setItem('serverIpAddress', this.savedServerIp);
+            
+            this.tab = 'dashboard'; 
+            alert('Server Berhasil Aktif! Tipe: ' + this.savedVersiMc + ' | IP: ' + this.savedServerIp); 
+        } else { alert('Saldo kurang!'); }
+    },
+
+    // Sistem Console Panel
+    send_command() {
+        if(!this.commandInput.trim()) return;
+        this.consoleLogs.push('> ' + this.commandInput);
+        let cmd = this.commandInput.toLowerCase();
+        if(cmd === 'help') {
+            this.consoleLogs.push('[Console] Commands: help, op, stop, list, version');
+        } else if(cmd === 'version') {
+            this.consoleLogs.push('[Console] Server Engine running on core: ' + this.savedVersiMc);
+        } else { this.consoleLogs.push('[Console] Command executed.'); }
+        this.commandInput = '';
+    },
+    deleteFile(index) { if(confirm('Hapus file?')) this.files.splice(index, 1); },
+    createFile() {
+        let n = prompt('Nama file/folder baru:');
+        if(n) this.files.push({ name: n, isDir: !n.includes('.'), size: n.includes('.') ? '1.0 KB' : '-' });
+    }
+}">
+
+    <div class="maintenance-screen" x-show="isMaintenanceMode && userRole !== 'admin'" style="display: none;">
+        <i class="fa-solid fa-triangle-exclamation maintenance-icon"></i>
+        <h2 style="font-weight: 800; font-size: 1.6rem; margin-bottom: 8px;">Sistem Sedang Di-Upgrade</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; max-width: 320px;">Web dimatikan sementara oleh Owner untuk pemeliharaan sistem dari orang jail. Harap kembali beberapa saat lagi!</p>
+    </div>
+
+    <div x-show="currentScreen === 'billing_screen'">
+        <template x-if="!isLoggedIn">
+            <div class="container">
+                <div class="auth-container" x-show="authMode === 'register'">
+                    <div class="auth-header"><h2>Buat Akun Baru</h2><p>Daftar Client Area Pink Host</p></div>
+                    <div class="input-label">Username <span style="text-transform:none; color:#2563eb;">(Ketik "admin" untuk jadi Owner)</span></div>
+                    <input type="text" class="input-box" x-model="username" placeholder="Username">
+                    <div class="input-label">Email</div>
+                    <input type="email" class="input-box" x-model="email" placeholder="nama@email.com">
+                    <div class="input-label">Password</div>
+                    <input type="password" class="input-box" x-model="password" placeholder="••••••••">
+                    <button class="btn-auth" @click="handleRegister()">Daftar</button>
+                    <div class="auth-toggle-text">Sudah punya akun? <span @click="authMode = 'login'">Login</span></div>
+                </div>
+                <div class="auth-container" x-show="authMode === 'login'" style="display: none;">
+                    <div class="auth-header"><h2>Selamat Datang</h2><p>Masukkan akun Anda</p></div>
+                    <div class="input-label">Email / Username</div>
+                    <input type="text" class="input-box" x-model="email" placeholder="Username atau email">
+                    <div class="input-label">Password</div>
+                    <input type="password" class="input-box" x-model="password" placeholder="••••••••">
+                    <button class="btn-auth" @click="handleLogin()">Masuk</button>
+                    <div class="auth-toggle-text">Belum punya akun? <span @click="authMode = 'register'">Daftar</span></div>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="isLoggedIn">
+            <div>
+                <nav>
+                    <button class="menu-toggle" @click="sidebarOpen = true"><i class="fa-solid fa-bars"></i></button>
+                    <div class="nav-title" x-text="userRole === 'admin' ? 'Pink Host (OWNER PANEL)' : 'Pink Host Billing'"></div>
+                    <div></div>
+                </nav>
+
+                <div class="sidebar-overlay" x-show="sidebarOpen" @click="sidebarOpen = false" style="display: none;"></div>
+                <div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+                    <div class="sidebar-header"><strong>Menu Navigation</strong><button class="menu-toggle" @click="sidebarOpen = false"><i class="fa-solid fa-xmark"></i></button></div>
+                    <div class="sidebar-user">
+                        <div class="user-avatar"><i class="fa-regular fa-user" :style="userRole === 'admin' ? 'color:#ef4444;' : 'color:#2563eb;'"></i></div>
+                        <div class="user-info">
+                            <strong x-text="username"></strong>
+                            <span x-text="userRole === 'admin' ? '👑 Main Owner / Creator' : email"></span>
+                            <div class="status-online">Online</div>
+                        </div>
+                    </div>
+                    
+                    <template x-if="userRole === 'admin'">
+                        <div>
+                            <div style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-top:15px; letter-spacing:0.5px;">Fitur Pemilik Web</div>
+                            <button class="sidebar-menu-btn" @click="tab = 'admin_panel'; sidebarOpen = false;" style="background:#eff6ff; color:#1e40af;"><i class="fa-solid fa-shield-halved"></i> Kelola Jail & Penipu</button>
+                        </div>
+                    </template>
+
+                    <button class="btn-logout" @click="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+                </div>
+
+                <div class="container">
+                    <div class="tabs-row" x-show="tab !== 'admin_panel'">
+                        <button class="tab-btn" :class="tab === 'dashboard' ? 'active' : ''" @click="tab = 'dashboard'">Dashboard Area</button>
+                        <button class="tab-btn" :class="tab === 'catalog' ? 'active' : ''" @click="tab = 'catalog'">Beli Server Game</button>
+                    </div>
+
+                    <div x-show="tab === 'dashboard'">
+                        <div class="billing-card">
+                            <p>Billing Client Balance</p>
+                            <h2 x-text="'Rp ' + credits.toLocaleString('id-ID')"></h2>
+                            <button class="btn-topup" @click="bukaModalTopup()"><i class="fa-solid fa-plus"></i> Isi Saldo QRIS</button>
+                        </div>
+                        <div class="server-list-card">
+                            <h3><i class="fa-solid fa-layer-group" style="color: #2563eb;"></i> Server Anda</h3>
+                            <template x-if="!hasServer">
+                                <div class="empty-text">Belum ada server aktif. Silakan order di menu katalog.</div>
+                            </template>
+                            <template x-if="hasServer">
+                                <div class="server-item">
+                                    <div>
+                                        <strong x-text="savedNamaServer"></strong>
+                                        <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">
+                                            Tipe: <span x-text="savedVersiMc"></span> | <span x-text="savedServerIp"></span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-manage" @click="currentScreen = 'panel_screen'">Kelola</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div x-show="tab === 'catalog'" style="display: none;">
+                        <div class="panel-card">
+                            <strong style="font-size: 1rem; color: #0f172a;"><i class="fa-solid fa-gamepad" style="color:#2563eb;"></i> Premium Dedicated Server Node</strong>
+                            <div class="input-label" style="margin-top:14px;">Nama Server Container</div>
+                            <input type="text" class="input-box" x-model="inputNamaServer" placeholder="Contoh: My Survival Server">
+                            <div class="input-label">Pilih Engine & Versi Minecraft</div>
+                            <select class="input-box" x-model="inputVersiMc">
+                                <optgroup label="Minecraft Java Edition (PC)">
+                                    <option value="Java - 1.21 (Terbaru)">Java - 1.21 (Terbaru)</option>
+                                    <option value="Java - 1.20.1">Java - 1.20.1</option>
+                                </optgroup>
+                                <optgroup label="Minecraft Bedrock Edition (PE / HP / Win10)">
+                                    <option value="Bedrock - 1.21.0 (Terbaru)">Bedrock - 1.21.0 (Terbaru)</option>
+                                    <option value="Bedrock - GeyserMC Crossplay">Java + Bedrock Crossplay Combo</option>
+                                </optgroup>
+                            </select>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top:15px; border-top:1px solid #e2e8f0;">
+                                <span style="color: #10b981; font-weight: 800;">Rp 25.000<span style="font-size:0.75rem; color:#64748b;">/bln</span></span>
+                                <button @click="beliServer()" style="background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:700; cursor:pointer;">Order Now</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="tab === 'admin_panel'" style="display: none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <button class="btn-back" @click="tab = 'dashboard'"><i class="fa-solid fa-arrow-left"></i> Keluar Menu Owner</button>
+                        </div>
+                        
+                        <div class="panel-card" style="border:1px solid #f59e0b; background:#fffbeb; margin-bottom:16px;">
+                            <strong style="color:#b45309; font-size:0.9rem;"><i class="fa-solid fa-wrench"></i> Sistem Auto-Upgrade Web</strong>
+                            <p style="font-size:0.75rem; color:#78350f; margin-top:4px; line-height:1.4;">Gunakan tombol ini jika ada orang yang menyerang web atau saat Anda ingin memperbarui fitur web. Seluruh user biasa akan otomatis terkunci di halaman upgrade.</p>
+                            <button @click="toggleMaintenanceMode()" :style="isMaintenanceMode ? 'background:#10b981; color:white;' : 'background:#ef4444; color:white;'" style="border:none; width:100%; padding:10px; font-weight:700; border-radius:10px; margin-top:12px; cursor:pointer;">
+                                <span x-text="isMaintenanceMode ? '🟢 HIDUPKAN WEB KEMBALI' : '🔴 MATIKAN WEB (MODE UPGRADE)'"></span>
+                            </button>
+                        </div>
+
+                        <div class="panel-card">
+                            <strong style="font-size:0.95rem; display:block; margin-bottom:4px;"><i class="fa-solid fa-users-gear" style="color:#2563eb;"></i> Data Database Pengguna</strong>
+                            <p style="font-size:0.75rem; color:#64748b; margin-bottom:12px;">Daftar orang yang terdaftar di web Pink Host Anda saat ini:</p>
+                            
+                            <table class="admin-user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Status Akun</th>
+                                        <th>Tindakan Owner</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(user, index) in usersDatabase" :key="index">
+                                        <tr>
+                                            <td>
+                                                <strong x-text="user.name"></strong><br>
+                                                <span style="font-size:0.7rem; color:#64748b;" x-text="user.email"></span>
+                                            </td>
+                                            <td>
+                                                <span x-show="user.banned" style="color:#ef4444; font-weight:700; font-size:0.75rem;">🚫 BANNED</span>
+                                                <span x-show="!user.banned" style="color:#10b981; font-weight:700; font-size:0.75rem;">🟢 Aktif</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn-admin-action" :class="user.banned ? 'btn-unban' : 'btn-ban'" @click="toggleBanUser(index)" x-text="user.banned ? 'Unban' : 'Ban'"></button>
+                                                <button class="btn-admin-action btn-del" @click="hapusUserPermanen(index)"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </template>
+
+        <div class="modal" x-show="modalTopup" style="display: none;">
+            <div class="modal-body">
+                <h4 style="font-weight:800; margin-bottom: 12px;">Isi Kredit Wallet</h4>
+                <div x-show="!showQrCode">
+                    <div class="topup-grid">
+                        <button class="topup-btn" :class="amountToTopup === 25000 ? 'selected' : ''" @click="amountToTopup = 25000">Rp 25.000</button>
+                        <button class="topup-btn" :class="amountToTopup === 50000 ? 'selected' : ''" @click="amountToTopup = 50000">Rp 50.000</button>
+                    </div>
+                    <button class="btn-auth" @click="tampilkanQRIS()">Lanjut Pembayaran</button>
+                </div>
+                <div x-show="showQrCode" style="display: none;">
+                    <span class="trx-code" x-text="invoiceId"></span><br>
+                    <div class="timer-box">Expired: <span x-text="timerString"></span></div>
+                    <div class="status-badge status-pending">Menunggu Pembayaran</div>
+                    <div style="background:#f8fafc; padding:12px; display:inline-block; border-radius:14px; margin-bottom:12px; border:1px solid #e2e8f0;">
+                        <img :src="linkQrisOwner" style="width:130px; height:130px; display:block;">
+                    </div>
+                    <input type="text" class="input-box" x-model="namaPengirim" placeholder="Nama Pemilik Rekening Pengirim">
+                    <button class="btn-wa" :disabled="!namaPengirim.trim()" @click="kirimBuktiWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Konfirmasi WA</button>
+                </div>
+                <p @click="tutupModal()" style="margin-top:16px; font-size:0.85rem; color:#ef4444; cursor:pointer; font-weight:700;">Batalkan Transaksi</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div x-show="currentScreen === 'panel_screen'" style="display: none;">
+        <nav>
+            <div class="nav-left">
+                <button class="btn-back" @click="currentScreen = 'billing_screen'"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="nav-title">Console Admin</div>
+            <div></div>
+        </nav>
+
+        <div class="container">
+            <div class="status-card">
+                <div style="display:flex; justify-content:space-between;">
+                    <div>
+                        <h2 class="server-title-text" x-text="savedNamaServer || 'Server Console'"></h2>
+                        <span class="server-ip-badge" x-text="savedServerIp"></span>
+                    </div>
+                    <div>
+                        <span :class="serverStatus === 'RUNNING' ? 'badge-running' : 'badge-offline'" x-text="serverStatus === 'RUNNING' ? 'Online' : 'Offline'"></span>
+                    </div>
+                </div>
+                <div class="status-row">
+                    <div class="status-box"><span>CPU Load</span><strong x-text="serverStatus === 'RUNNING' ? '12.4%' : '0%'"></strong></div>
+                    <div class="status-box"><span>RAM Memory</span><strong x-text="serverStatus === 'RUNNING' ? '1.8 GB' : '0 GB'"></strong></div>
+                </div>
+                <div class="control-actions">
+                    <button class="btn-action btn-start" @click="serverStatus = 'RUNNING'; consoleLogs.push('[System] Starting Server...')"><i class="fa-solid fa-play"></i> Start</button>
+                    <button class="btn-action btn-restart" @click="serverStatus = 'RUNNING'; consoleLogs.push('[System] Restarting...'); setTimeout(() => consoleLogs.push('[System] Server Online.'), 800)"><i class="fa-solid fa-rotate-right"></i> Restart</button>
+                    <button class="btn-action btn-stop" @click="serverStatus = 'OFFLINE'; consoleLogs.push('[System] Server Stopped.')"><i class="fa-solid fa-stop"></i> Stop</button>
+                </div>
+            </div>
+
+            <div class="menu-row">
+                <button class="menu-btn" :class="panelTab === 'console' ? 'active' : ''" @click="panelTab = 'console'">Console</button>
+                <button class="menu-btn" :class="panelTab === 'files' ? 'active' : ''" @click="panelTab = 'files'">File Manager</button>
+                <button class="menu-btn" :class="panelTab === 'specs' ? 'active' : ''" @click="panelTab = 'specs'">Details</button>
+            </div>
+
+            <div x-show="panelTab === 'console'">
+                <div class="panel-card">
+                    <div class="console-screen">
+                        <template x-for="log in consoleLogs">
+                            <div style="margin-bottom:3px;" x-text="log"></div>
+                        </template>
+                    </div>
+                    <div class="console-input-row">
+                        <input type="text" class="console-input" x-model="commandInput" @keydown.enter="send_command()" placeholder="Ketik perintah (ex: help)...">
+                        <button class="btn-send-cmd" @click="send_command()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="panelTab === 'files'" style="display: none;">
+                <div class="panel-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:#64748b;">Root: /home/container</span>
+                        <button @click="createFile()" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer;">+ File Baru</button>
+                    </div>
+                    <div class="file-list">
+                        <template x-for="(file, index) in files" :key="index">
+                            <div class="file-item" @click="alert('Membuka ' + file.name)">
+                                <div class="file-left">
+                                    <i :class="file.isDir ? 'fa-solid fa-folder file-icon-dir' : 'fa-solid fa-file-code file-icon-file'"></i>
+                                    <span x-text="file.name"></span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span class="file-size" x-text="file.size"></span>
+                                    <button class="btn-file-action" @click.stop="deleteFile(index)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="panelTab === 'specs'" style="display: none;">
+                <div class="panel-card">
+                    <div class="info-grid">
+                        <div class="info-item"><div>Processor</div><p>AMD Ryzen 9 7950X</p></div>
+                        <div class="info-item"><div>RAM Dedicated</div><p>4 GB DDR5 ECC</p></div>
+                        <div class="info-item"><div>Engine System</div><p x-text="savedVersiMc"></p></div>
+                        <div class="info-item"><div>Status Port</div><p style="color:#10b981;">Ter-Alokasi Unik</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

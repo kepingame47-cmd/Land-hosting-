@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Host - Server Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f4f6fa; color: #334155; padding-bottom: 30px; }
+        
+        /* Navbar */
+        nav { background: #ffffff; padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .btn-back { color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 8px 14px; border-radius: 10px; transition: 0.2s; }
+        .btn-back:hover { background: #e2e8f0; color: #0f172a; }
+        .nav-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+        
+        .container { width: 100%; max-width: 480px; margin: 0 auto; padding: 16px; }
+        
+        /* Server Header Status */
+        .status-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .server-title { font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+        .server-ip { font-size: 0.8rem; color: #64748b; font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
+        
+        .status-row { display: flex; gap: 10px; margin-bottom: 16px; }
+        .status-box { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; }
+        .status-box span { display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .status-box strong { font-size: 0.95rem; color: #0f172a; }
+        
+        .badge-running { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .badge-offline { background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        
+        /* Control Action Buttons */
+        .control-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-action { border: none; padding: 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-start { background: #dcfce7; color: #166534; }
+        .btn-start:hover { background: #bbf7d0; }
+        .btn-restart { background: #eff6ff; color: #1e40af; }
+        .btn-restart:hover { background: #dbeafe; }
+        .btn-stop { background: #fee2e2; color: #991b1b; }
+        .btn-stop:hover { background: #fca5a5; }
+        
+        /* Sub Navigation Menu (Persis Style Capsul Evovix) */
+        .menu-row { display: flex; background: #e2e8f0; padding: 5px; border-radius: 14px; margin-bottom: 16px; gap: 4px; }
+        .menu-btn { flex: 1; padding: 10px; text-align: center; border-radius: 10px; color: #64748b; font-size: 0.85rem; cursor: pointer; font-weight: 600; border: none; background: transparent; transition: 0.2s; }
+        .menu-btn.active { color: #2563eb; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        /* Panel View Sections */
+        .panel-card { background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        
+        /* Console View */
+        .console-screen { background: #0f172a; color: #38bdf8; padding: 14px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; height: 180px; overflow-y: auto; margin-bottom: 10px; line-height: 1.5; text-align: left; }
+        .console-input-row { display: flex; gap: 6px; }
+        .console-input { flex: 1; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .btn-send-cmd { background: #2563eb; color: white; border: none; padding: 0 14px; border-radius: 8px; cursor: pointer; }
+        
+        /* File Manager View */
+        .file-list { display: flex; flex-direction: column; gap: 8px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .file-item:hover { background: #f1f5f9; }
+        .file-left { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: #0f172a; }
+        .file-icon-dir { color: #eab308; }
+        .file-icon-file { color: #64748b; }
+        .file-size { font-size: 0.75rem; color: #94a3b8; }
+        .btn-file-action { background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px; }
+        
+        /* Core Info Grid */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .info-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 0.8rem; }
+        .info-item div { color: #64748b; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; font-size: 0.7rem; }
+        .info-item p { color: #0f172a; font-weight: 700; }
+    </style>
+</head>
+<body x-data="{
+    // State Server
+    serverName: localStorage.getItem('serverName') || 'Survival Premium Node',
+    serverVersion: localStorage.getItem('serverVersion') || '1.20.1',
+    serverStatus: 'RUNNING',
+    currentTab: 'console',
+    
+    // Console Data
+    commandInput: '',
+    consoleLogs: [
+        '[PinkHost] Loading core libraries...',
+        '[PinkHost] Starting minecraft server version 1.20.1',
+        '[PinkHost] Loading properties & ports mapping...',
+        '[PinkHost] Environment container running on land.host.net:19142',
+        '[PinkHost] Done! Server started successfully.'
+    ],
+    
+    // File Manager Data
+    files: [
+        { name: 'plugins', isDir: true, size: '-' },
+        { name: 'world', isDir: true, size: '-' },
+        { name: 'server.properties', isDir: false, size: '4.2 KB' },
+        { name: 'spigot.yml', isDir: false, size: '8.1 KB' },
+        { name: 'banned-players.json', isDir: false, size: '0.1 KB' },
+        { name: 'ops.json', isDir: false, size: '0.5 KB' }
+    ],
+
+    // Functions Control
+    send_command() {
+        if(!this.commandInput.trim()) return;
+        this.consoleLogs.push('> ' + this.commandInput);
+        
+        let cmd = this.commandInput.toLowerCase();
+        if(cmd === 'help') {
+            this.consoleLogs.push('[Console] Available commands: help, op, stop, list, say');
+        } else if(cmd.startsWith('say ')) {
+            this.consoleLogs.push('[Broadcast] ' + this.commandInput.substring(4));
+        } else {
+            this.consoleLogs.push('[Console] Command executed successfully.');
+        }
+        this.commandInput = '';
+        
+        this.$nextTick(() => {
+            let el = document.getElementById('console-box');
+            el.scrollTop = el.scrollHeight;
+        });
+    },
+
+    deleteFile(index) {
+        if(confirm('Apakah Anda yakin ingin menghapus file ini?')) {
+            this.files.splice(index, 1);
+        }
+    },
+
+    createFile() {
+        let name = prompt('Masukkan nama file atau folder baru:');
+        if(name) {
+            this.files.push({ name: name, isDir: name.includes('.') ? false : true, size: name.includes('.') ? '1.0 KB' : '-' });
+        }
+    }
+}">
+
+    <nav>
+        <div class="nav-left">
+            <a href="billing.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+        </div>
+        <div class="nav-title">Server Console</div>
+    </nav>
+
+    <div class="container">
+        <div class="status-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h2 class="server-title" x-text="serverName"></h2>
+                    <span class="server-ip">land.host.net:19142</span>
+                </div>
+                <div>
+                    <template x-if="serverStatus === 'RUNNING'">
+                        <span class="badge-running"><i class="fa-solid fa-circle fa-fade"></i> Online</span>
+                    </template>
+                    <template x-if="serverStatus === 'OFFLINE'">
+                        <span class="badge-offline"><i class="fa-solid fa-circle"></i> Offline</span>
+                    </template>
+                </div>
+            </div>
+
+            <div class="status-row">
+                <div class="status-box">
+                    <span>CPU Load</span>
+                    <strong x-text="serverStatus === 'RUNNING' ? '14.2%' : '0%'"></strong>
+                </div>
+                <div class="status-box">
+                    <span>Memory RAM</span>
+                    <strong x-text="serverStatus === 'RUNNING' ? '1.8 GB / 4 GB' : '0 GB / 4 GB'"></strong>
+                </div>
+                <div class="status-box">
+                    <span>Storage SSD</span>
+                    <strong>3.4 GB / 10 GB</strong>
+                </div>
+            </div>
+
+            <div class="control-actions">
+                <button class="btn-action btn-start" @click="serverStatus = 'RUNNING'; consoleLogs.push('[System] Starting container server...')">
+                    <i class="fa-solid fa-play"></i> Start
+                </button>
+                <button class="btn-action btn-restart" @click="serverStatus = 'RUNNING'; consoleLogs.push('[System] Rebooting core server...'); setTimeout(() => consoleLogs.push('[System] Server successfully restarted.'), 1000)">
+                    <i class="fa-solid fa-rotate-right"></i> Restart
+                </button>
+                <button class="btn-action btn-stop" @click="serverStatus = 'OFFLINE'; consoleLogs.push('[System] Stopping container server daemon...')">
+                    <i class="fa-solid fa-stop"></i> Stop
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-row">
+            <button class="menu-btn" :class="currentTab === 'console' ? 'active' : ''" @click="currentTab = 'console'">
+                <i class="fa-solid fa-terminal"></i> Console
+            </button>
+            <button class="menu-btn" :class="currentTab === 'files' ? 'active' : ''" @click="currentTab = 'files'">
+                <i class="fa-solid fa-folder-open"></i> File Manager
+            </button>
+            <button class="menu-btn" :class="currentTab === 'specs' ? 'active' : ''" @click="currentTab = 'specs'">
+                <i class="fa-solid fa-microchip"></i> Details
+            </button>
+        </div>
+
+        <div x-show="currentTab === 'console'">
+            <div class="panel-card">
+                <div class="console-screen" id="console-box">
+                    <template x-for="log in consoleLogs">
+                        <div style="margin-bottom:4px;" x-text="log"></div>
+                    </template>
+                </div>
+                <div class="console-input-row">
+                    <input type="text" class="console-input" x-model="commandInput" @keydown.enter="send_command()" placeholder="Ketik perintah console (ex: help, op)...">
+                    <button class="btn-send-cmd" @click="send_command()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'files'" style="display: none;">
+            <div class="panel-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <span style="font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase;">Direktori: /home/container</span>
+                    <button @click="createFile()" style="background:#2563eb; color:white; border:none; padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:8px; cursor:pointer;">
+                        <i class="fa-solid fa-plus"></i> Buat Baru
+                    </button>
+                </div>
+
+                <div class="file-list">
+                    <template x-for="(file, index) in files" :key="index">
+                        <div class="file-item" @click="alert('Membuka file/folder: ' + file.name)">
+                            <div class="file-left">
+                                <template x-if="file.isDir">
+                                    <i class="fa-solid fa-folder file-icon-dir"></i>
+                                </template>
+                                <template x-if="!file.isDir">
+                                    <i class="fa-solid fa-file-code file-icon-file"></i>
+                                </template>
+                                <span x-text="file.name"></span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <span class="file-size" x-text="file.size"></span>
+                                <button class="btn-file-action" @click.stop="deleteFile(index)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'specs'" style="display: none;">
+            <div class="panel-card">
+                <span style="font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; display:block; margin-bottom:10px;">Container Node Specification</span>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div>Processor</div>
+                        <p>AMD Ryzen 9 7950X</p>
+                    </div>
+                    <div class="info-item">
+                        <div>Allocated RAM</div>
+                        <p>4096 MB DDR5</p>
+                    </div>
+                    <div class="info-item">
+                        <div>Server Engine</div>
+                        <p x-text="'Paper MC ' + serverVersion"></p>
+                    </div>
+                    <div class="info-item">
+                        <div>Location Node</div>
+                        <p>Jakarta, Indonesia</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
